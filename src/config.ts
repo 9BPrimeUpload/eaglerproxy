@@ -7,14 +7,18 @@ export const config: Config = {
   adapter: {
     name: "EaglerProxy",
     bindHost: "0.0.0.0",
-    bindPort: 8080,
+    // Railway automatically injects the PORT environment variable. This ensures it hooks up correctly.
+    bindPort: parseInt(process.env.PORT || "8080"),
     maxConcurrentClients: 20,
-    // set this to false if you are unable to install sharp due to either the use of a platform that does not support native modules
-    // or if you are unable to install the required dependencies. this will cause the proxy to use jimp instead of sharp, which may
-    // degrade your proxy's performance.
+    // Set to false if native module building fails during Railway deployment
     useNatives: true,
     skinServer: {
-      skinUrlWhitelist: undefined,
+      // Allows proxy connections to fetch custom skins across external domains securely
+      skinUrlWhitelist: [
+        "https://minecraft.net",
+        "https://ashcon.app",
+        "https://minotar.net"
+      ],
       cache: {
         useCache: true,
         folderName: "skinCache",
@@ -22,20 +26,14 @@ export const config: Config = {
         skinCachePruneInterval: 10 * 60 * 1000,
       },
     },
-    motd: true
-      ? "FORWARD" // "FORWARD" regularly polls the server for the MOTD
-      : {
-          iconURL: "motd.png", // must be a valid file path
-          l1: "yes",
-          l2: "no",
-        }, // providing an object as such will allow you to supply your own MOTD
+    motd: "FORWARD", // This will fetch your active Play.Hosting Fabric server MOTD automatically
     ratelimits: {
       lockout: 10,
       limits: {
         http: 100,
         ws: 100,
         motd: 100,
-        skins: 1000, // adjust as necessary
+        skins: 1000, 
         skinsIp: 10000,
         connect: 100,
       },
@@ -46,8 +44,9 @@ export const config: Config = {
       originBlacklist: null,
     },
     server: {
-      host: "127.0.0.1",
-      port: 1111,
+      // Connects directly to your Play.Hosting Fabric Server coordinates
+      host: "eaglerx.play.hosting",
+      port: 25838,
     },
     tls: undefined,
   },
